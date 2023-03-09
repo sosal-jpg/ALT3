@@ -76,7 +76,7 @@ def start():
 
 def my_mainloop():
     global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,y_count1,x_count,tf,k,fx
-    if tf:
+    if tf:#modulates wall touch
         if y<=5 or y>=875:
             if y<=5: y=5
             else: y=875
@@ -88,12 +88,15 @@ def my_mainloop():
         elif x>=1855 and (x_count==0 or x_count==2):
             x_count=1
             vx0=-vx*(1-loss)
-    if vx >= 0:vx = vx0 / (e ** (k * t / m))
+
+    if vx >= 0:vx = vx0 / (e ** (k * t / m))#x and y velocity
     else:vx = vx0 * (e ** (k * t / m))
     vx0 = vx
+
     if vy >= 0:vy = (k * vy0 - f) / (k * e ** (k * t / m)) + f / k
     else:vy = (((k * vy0 + f) * (e ** (k * t / m))) / k) - (f / k)
     vy0 = vy
+
     if y_count!= 3 and y_count1!= 3 :
         y +=vy*tick/(1000)
         if y<=5.1: y_count+=1
