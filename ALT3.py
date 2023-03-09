@@ -130,7 +130,7 @@ y2=None
 k=0.01
 
 scale=1/20
-loss=0.4
+loss=0.5
 e=exp(1)
 tick=30
 x_count=2
