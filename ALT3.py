@@ -4,21 +4,21 @@ from scipy.integrate import quad
 from math import *
 import time
 
-def left(event):
+def left(event):#creates a ball
     global x1,y1,circle
     x1=event.x
     y1=event.y
-    canv.delete("all")
+    canv.delete("all")#clears canvas
     circle = canv.create_oval(x1+5, y1+5, x1-5, y1-5,fill='#000000')
 
-def move(event):
+def move(event):#draws a line
     global line,length
     try :canv.delete(line)
     except: pass
     length=sqrt((x1-event.x)**2+(y1-event.y)**2)
     line=canv.create_line(x1,y1,event.x,event.y,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
 
-def left_up(event):
+def left_up(event):#draws final line
     global x2, y2,line,length
     try:canv.delete(line)
     except:pass
@@ -27,7 +27,7 @@ def left_up(event):
     length=sqrt((x1-x2)**2+(y1-y2)**2)
     line=canv.create_line(x1,y1,event.x,event.y,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
 
-def stop():
+def stop():# reset function which doesn't work
     stp=True
     canv.delete('all')
     x1 = None
@@ -46,21 +46,20 @@ def start():
         try:m=float(entr_mass.get())
         except:print('no mass')
         else:
-            t=0
-            f=m*9.8
+            f=m*9.8#mg
             x=x0=x1
             y=y0=y1
             windx=cos(wind_ang)*wind_magn
             windy=sin(wind_ang)*wind_magn
             v=2*length/3
-            try: vx=vx0=v*(x2-x1)/(length*2)-windx
-            except: vx=vx0=0
-            try: vy=vy0=v*(y2-y1)/(length*2)-windy
-            except: vy=vy0=0
+            try: vx0=v*(x2-x1)/(length*2)-windx#calculates x and y velocity
+            except: vx0=0
+            try: vy0=v*(y2-y1)/(length*2)-windy
+            except: vy0=0
 
-            t = tick / (1000)
+            t = tick / (1000)#tick in seconds
 
-            if vx>=0:vx=vx0/(e**(k*t/m))
+            if vx>=0:vx=vx0/(e**(k*t/m))#calculates x and y velocity after tick
             else:vx=vx0*(e**(k*t/m))
             vx0=vx
 
@@ -68,11 +67,11 @@ def start():
             else:vy=(((k*vy0+f)*(e**(k*t/m)))/k)-(f/k)
             vy0 = vy
 
-            x+=vx*tick/1000
+            x+=vx*tick/1000#calculates coordinates of the ball
             y+=vy*tick/1000
 
             canv.delete('all')
-            circle = canv.create_oval(x + 5, y + 5, x - 5, y - 5, fill='#000000')
+            circle = canv.create_oval(x + 5, y + 5, x - 5, y - 5, fill='#000000')#draws new circle
             window.after(tick, my_mainloop)
 
 def my_mainloop():
@@ -127,25 +126,25 @@ x1=None
 y1=None
 x2=None
 y2=None
-k=0.01
-
+k=0.01#air resistance coefficient
 scale=1/20
-loss=0.5
-e=exp(1)
-tick=30
+loss=0.4#loss of speed when hitting a wall
+e=exp(1)#exponenta
+tick=30#update time
 x_count=2
 y_count=0
 y_count1=0
 tf=True
 
-window=tk.Tk()
-height=window.winfo_screenheight()
+window=tk.Tk() #Window creation
+height=window.winfo_screenheight()#height and width of user's screen
 width=window.winfo_screenwidth()
-window.state('zoomed')
-canv=tk.Canvas(window,height=height*13/16, width=width,background='#9ACEEB')
+window.state('zoomed')#makes window zoomed
+
+canv=tk.Canvas(window,height=height*13/16, width=width,background='#9ACEEB')#creates canvas
 canv.bind('<Button-1>',left)
 canv.bind('<ButtonRelease-1>',left_up)
-canv.bind('<B1-Motion>',move)
+canv.bind('<B1-Motion>',move)#on actions with the left mouse button, functions are executed
 canv.place(x=0,y=0)
 
 fr=tk.Frame(window,height=height*3/16,width=width)
