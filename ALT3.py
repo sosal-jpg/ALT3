@@ -25,19 +25,16 @@ def left_up(event):#draws final line
     x2=event.x
     y2=event.y
     length=sqrt((x1-x2)**2+(y1-y2)**2)
-    line=canv.create_line(x1,y1,event.x,event.y,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
+    line=canv.create_line(x1,y1,x2,y2,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
 
-def stop():# reset function which doesn't work
+def stop():# reset function, doesn't fully work
+    global stp,x1,x2,y1,y2,canvas,line,circle
     stp=True
     canv.delete('all')
-    x1 = None
-    y1 = None
-    x2 = None
-    y2 = None
-    canv.delete('all')
-
+    line=canv.create_line(x1,y1,event.x,event.y,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
+    circle = canv.create_oval(x1 + 5, y1 + 5, x1 - 5, y1 - 5, fill='#000000')
 def start():
-    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,x_count,k,fx
+    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,x_count,k,fx,stp
     if x1 is not None:
         try :wind_magn=float(entr_wind.get())
         except:wind_magn=0
@@ -46,21 +43,21 @@ def start():
         try:m=float(entr_mass.get())
         except:print('no mass')
         else:
-            f=m*9.8#mg
+            stp = False
+            f=0#mg
             x=x0=x1
             y=y0=y1
             windx=cos(wind_ang)*wind_magn
             windy=sin(wind_ang)*wind_magn
             v=2*length/3
-            try: vx0=v*(x2-x1)/(length*2)-windx#calculates x and y velocity
+            try: vx=vx0=v*(x2-x1)/(length*2)-windx#calculates x and y velocity
             except: vx0=0
-            try: vy0=v*(y2-y1)/(length*2)-windy
+            try: vy=vy0=v*(y2-y1)/(length*2)-windy
             except: vy0=0
 
             t = tick / (1000)#tick in seconds
 
-            if vx>=0:vx=vx0/(e**(k*t/m))#calculates x and y velocity after tick
-            else:vx=vx0*(e**(k*t/m))
+            vx=vx0/(e**(k*t/m))#calculates x and y velocity after tick
             vx0=vx
 
             if vy>=0: vy=(k*vy0-f)/(k*e**(k*t/m))+f/k
@@ -75,7 +72,7 @@ def start():
             window.after(tick, my_mainloop)
 
 def my_mainloop():
-    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,y_count1,x_count,tf,k,fx
+    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,x_count,tf,k,fx,stp
     if tf:#modulates wall touch
         if y<=5 or y>=875:
             if y<=5: y=5
@@ -89,40 +86,34 @@ def my_mainloop():
             x_count=1
             vx0=-vx*(1-loss)
 
-    if vx >= 0:vx = vx0 / (e ** (k * t / m))#x and y velocity
-    else:vx = vx0 * (e ** (k * t / m))
+    vx = vx0 / (e ** (k * t / m))#x and y velocity
     vx0 = vx
 
     if vy >= 0:vy = (k * vy0 - f) / (k * e ** (k * t / m)) + f / k
     else:vy = (((k * vy0 + f) * (e ** (k * t / m))) / k) - (f / k)
     vy0 = vy
 
-    if y_count!= 3 and y_count1!= 3 :
-        y +=vy*tick/(1000)
+    if y_count!= 4 :
+        y +=vy*tick/(1000)#y
         if y<=5.1: y_count+=1
         else: y_count=0
-        if y>=874.9:y_count1+=1
-        else:y_count1=0
-    elif tf:
+    elif tf:#if the ball remains at the low height for 3 ticks, y coordinate stops changing
         tf=False
-        if y<=10:y=5
-        else: y0=875
+        y=5
         x0=x
-        t=0
         fx = f *0.2
-    if not tf:
-        if abs(vx)<4: vx=0
-        else:
-            if vx >= 0:
-                vx = (k * vx0 + fx) / (k * e ** (k * t / m)) - fx / k
-            else:
-                vx = (((k * vx0 + fx) * (e ** (k * t / m))) / k) - (fx / k)
-            vx0 = vx
-    x +=vx*tick/1000
+
+    if not tf:#if y is constant
+        if abs(vx)<4: vx=0#if x velocity<4 and the ball is on the ground, it stops moving
+    x +=vx*tick/1000#x
     print(vx,vy)
     canv.delete('all')
     circle = canv.create_oval(x + 5, y+5, x - 5, y-5, fill='#000000')
-    window.after(tick, my_mainloop)
+
+    if not stp: window.after(tick, my_mainloop)#stops the program
+    else:
+        stop()
+        stp = False
 
 stp=False
 x1=None
@@ -136,7 +127,6 @@ e=exp(1)#exponenta
 tick=30#update time
 x_count=2
 y_count=0
-y_count1=0
 tf=True
 
 window=tk.Tk() #Window creation
