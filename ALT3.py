@@ -1,6 +1,4 @@
 import tkinter as tk
-import sympy as sm
-from scipy.integrate import quad
 from math import *
 import time
 
@@ -44,7 +42,7 @@ def start():
         except:print('no mass')
         else:
             stp = False
-            f=0#mg
+            f=9.8*m#mg
             x=x0=x1
             y=y0=y1
             windx=cos(wind_ang)*wind_magn
