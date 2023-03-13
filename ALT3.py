@@ -58,8 +58,7 @@ def start():
             vx=vx0/(e**(k*t/m))#calculates x and y velocity after tick
             vx0=vx
 
-            if vy>=0: vy=(k*vy0-f)/(k*e**(k*t/m))+f/k
-            else:vy=(((k*vy0+f)*(e**(k*t/m)))/k)-(f/k)
+            vy=(k*vy0-f)/(k*e**(k*t/m))+f/k
             vy0 = vy
 
             x+=vx*tick/1000#calculates coordinates of the ball
@@ -87,8 +86,7 @@ def my_mainloop():
     vx = vx0 / (e ** (k * t / m))#x and y velocity
     vx0 = vx
 
-    if vy >= 0:vy = (k * vy0 - f) / (k * e ** (k * t / m)) + f / k
-    else:vy = (((k * vy0 + f) * (e ** (k * t / m))) / k) - (f / k)
+    vy = (k * vy0 - f) / (k * e ** (k * t / m)) + f / k
     vy0 = vy
 
     if y_count!= 4 :
