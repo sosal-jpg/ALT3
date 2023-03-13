@@ -29,7 +29,7 @@ def stop():# reset function, doesn't fully work
     global stp,x1,x2,y1,y2,canvas,line,circle
     stp=True
     canv.delete('all')
-    line=canv.create_line(x1,y1,event.x,event.y,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
+    line=canv.create_line(x1,y1,x2,y2,width=3,arrow=tk.LAST,arrowshape=(length*10/250,length*13/250,length*7/250))
     circle = canv.create_oval(x1 + 5, y1 + 5, x1 - 5, y1 - 5, fill='#000000')
 def start():
     global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,x_count,k,fx,stp
@@ -90,7 +90,7 @@ def my_mainloop():
     vy0 = vy
 
     if y_count!= 4 :
-        y +=vy*tick/(1000)#y
+        y +=(vy+windy)*tick/(1000)#y
         if y<=5.1: y_count+=1
         else: y_count=0
     elif tf:#if the ball remains at the low height for 3 ticks, y coordinate stops changing
@@ -158,9 +158,9 @@ entr_mass=tk.Entry(fr)
 entr_mass.grid(column=0,row=3,padx=2,pady=2)
 
 restart=tk.Button(fr,command=stop,text='Reset',height=2,width=8)
-restart.grid(column=20,row=0,padx=2,pady=2)
+restart.grid(column=2,row=0,padx=2,pady=2)
 
 start=tk.Button(fr,command=start,text='Start',height=2,width=8)
-start.grid(column=20,row=1,padx=2,pady=2)
+start.grid(column=2,row=1,padx=2,pady=2)
 
 window.mainloop()
