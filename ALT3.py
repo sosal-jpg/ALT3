@@ -10,9 +10,14 @@ def temp_text(event):
     event.widget.delete(0,"end")
 
 def is_text(event):
-    if event.widget.get()==''or isinstance(event.widget.get(),str):
+    if event.widget.get()=='':
         event.widget.delete(0, "end")
         event.widget.insert(0,prev_text)
+    else:
+        try: artf=float(event.widget.get())
+        except:
+            event.widget.delete(0, "end")
+            event.widget.insert(0, prev_text)
 
 def creation():
     global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, k, fx, stp, height, width,canv,fr,label1,label2,label3,entr_wind,entr_ang,entr_mass,restart,b_start,l,scale,entr_height,label4
@@ -124,6 +129,8 @@ def start():
         scale = height / l
         stp = False
         tf=True
+        y_count=0
+        y_count1=0
         k = 0.47 * 1.275 * 3.14 * (0.5 ** 2)  # air resistance coefficient
         f=9.8*m#mg
         x=x0=x1
