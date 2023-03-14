@@ -116,7 +116,7 @@ def stop():# reset function
     line=canv.create_line(x1,y1,x2,y2,width=3,arrow=tk.LAST,arrowshape=(sqrt(10+length*10/25),sqrt(10+length*20/25),sqrt(10+length*7/25)))
     circle = canv.create_oval(x1 + 5, y1 + 5, x1 - 5, y1 - 5, fill='#000000')
 def start():
-    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,x_count,k,fx,stp,height,width,scale,entr_height,tf
+    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,y_count1,x_count,k,fx,stp,height,width,scale,entr_height,tf
     if x1 is not None:
         try :wind_magn=float(entr_wind.get())
         except:wind_magn=0
