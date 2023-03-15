@@ -20,7 +20,7 @@ def is_text(event):
             event.widget.insert(0, prev_text)
 
 def creation():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, k, fx, stp, height, width,canv,fr,label1,label2,label3,entr_wind,entr_ang,entr_mass,restart,b_start,l,scale,entr_height,label4
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, label7, x_count, k, fx, stp, height,entr_y,entr_x, width,canv,fr,label1,label2,label3,label5,entr_wind,entr_ang,entr_mass,restart,b_start,l,scale,entr_height,label4
     height = window.winfo_height()
     width = window.winfo_width()
     canv = tk.Canvas(window, height=height * 13 / 16, width=width, background='#9ACEEB')  # creates canvas
@@ -43,6 +43,15 @@ def creation():
 
     label4 = tk.Label(fr, text='Height')
     label4.grid(column=1, row=2)
+    
+    label5 = tk.Label(fr, text='y')
+    label5.grid(column=3, row=0,sticky='N')
+
+    label6 = tk.Label(fr, text='x')
+    label6.grid(column=4, row=0,sticky='N')
+
+    label7 = tk.Label(fr)
+    label7.grid(column=0, row=4)
 
     entr_wind = tk.Entry(fr)
     entr_wind.insert(0,'0')
@@ -60,6 +69,14 @@ def creation():
     entr_height.insert(0, '100')
     entr_height.grid(column=1, row=3, padx=2, pady=2)
 
+    entr_y = tk.Entry(fr)
+    entr_y.insert(0, '0')
+    entr_y.grid(column=3, row=1, padx=2, pady=2)
+
+    entr_x = tk.Entry(fr)
+    entr_x.insert(0, '0')
+    entr_x.grid(column=4, row=1, padx=2, pady=2)
+
     entr_ang.bind("<FocusIn>",temp_text)
     entr_mass.bind("<FocusIn>", temp_text)
     entr_wind.bind("<FocusIn>", temp_text)
@@ -71,16 +88,15 @@ def creation():
     entr_height.bind("<FocusOut>", is_text)
 
     restart = tk.Button(fr, command=stop, text='Reset', height=2, width=8)
-    restart.grid(column=2, row=0, padx=2, pady=2)
+    restart.grid(column=2, row=1, padx=2, pady=2)
 
     b_start = tk.Button(fr, command=start, text='Start', height=2, width=8)
-    b_start.grid(column=2, row=1, padx=2, pady=2)
+    b_start.grid(column=2, row=3, padx=2, pady=2)
 
     window.bind('<Return>',button_click)
     window.bind('<Escape>',button_click)
 
     height = round(height*13/16)
-
     #print(width,height)
 def left(event):#creates a ball
     global x1,y1,circle
@@ -89,6 +105,14 @@ def left(event):#creates a ball
         y1=event.y
         canv.delete("all")#clears canvas
         circle = canv.create_oval(x1+5, y1+5, x1-5, y1-5,fill='#000000')
+        try:l=float(entr_height.get())
+        except:l=100
+        scale = height / l
+        entr_y.delete(0,'end')
+        entr_x.delete(0, 'end')
+        entr_y.insert(0,round(y1/scale,2))
+        entr_x.insert(0,round(x1/scale,2))
+        label7.configure(text=f'{round(5/scale,3)}')
     #print(event.x,event.y)
 
 def move(event):#draws a line
@@ -117,7 +141,7 @@ def stop():# reset function
     circle = canv.create_oval(x1 + 5, y1 + 5, x1 - 5, y1 - 5, fill='#000000')
 def start():
     global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,y_count1,x_count,k,fx,stp,height,width,scale,entr_height,tf
-    if x1 is not None:
+    if x1 is not None and stp:
         try :wind_magn=float(entr_wind.get())
         except:wind_magn=0
         try :wind_ang=float(entr_ang.get())
@@ -156,6 +180,11 @@ def start():
         x+=vx*scale*tick/1000#calculates coordinates of the ball
         y+=vy*scale*tick/1000
 
+        entr_y.delete(0,'end')
+        entr_x.delete(0, 'end')
+        entr_y.insert(0,round(y/scale,2))
+        entr_x.insert(0,round(x/scale,2))
+
         canv.delete('all')
         circle = canv.create_oval(x + 5, y + 5, x - 5, y - 5, fill='#000000')#draws new circle
         window.after(tick, my_mainloop)
@@ -190,12 +219,17 @@ def my_mainloop():
     elif tf:#if the ball remains near the wall for 4 ticks, y coordinate stops changing
         tf=False
         if y_count==4: y=5
-        else:y=height-6
+        else:y=height-5
     #y += vy * scale * tick / (1000)  # y
     x +=vx*scale*tick/1000#x
     #print(vx,vy)
     canv.delete('all')
     circle = canv.create_oval(x + 5, y+5, x - 5, y-5, fill='#000000')
+
+    entr_y.delete(0, 'end')
+    entr_x.delete(0, 'end')
+    entr_y.insert(0, round(y / scale, 2))
+    entr_x.insert(0, round(x / scale, 2))
 
     if not stp: window.after(tick, my_mainloop)#stops the program
     else:
@@ -221,5 +255,5 @@ height=window.winfo_screenheight()#height and width of user's screen
 width=window.winfo_screenwidth()
 window.state('zoomed')#makes window zoomed
 
-window.after(1, creation)
+window.after(30, creation)
 window.mainloop()
