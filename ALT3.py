@@ -402,7 +402,7 @@ def my_mainloop():
 
 
 def circl(*args):
-    global circle, r, r_real, l
+    global circle, r, r_real, l,line
     try:
         try:
             r_real = float(entr_radius.get())
@@ -422,6 +422,18 @@ def circl(*args):
         if stp:
             canv.delete('all')
             circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+    if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
+    refr_coor(x1, y1)
+    v = 2 * length / (0.1 * scale)
+    try:
+        vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+    except:
+        vx0 = 0
+    try:
+        vy = vy0 = v * (y2 - y1) / (length * 2)
+    except:
+        vy0 = 0
+    refr_vel(abs(vx), vy)
 
 
 def is_focused(event):
