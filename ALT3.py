@@ -2,14 +2,29 @@ import tkinter as tk
 from math import *
 import time
 
-
+def entrs():
+    global entrs_dsbld
+    if not entrs_dsbld:
+        window.focus_set()
+        entr_wind.configure(state='disabled')
+        entr_ang.configure(state='disabled')
+        entr_radius.configure(state='disabled')
+        entr_height.configure(state='disabled')
+        entr_mass.configure(state='disabled')
+    else:
+        entr_wind.configure(state='normal')
+        entr_ang.configure(state='normal')
+        entr_radius.configure(state='normal')
+        entr_height.configure(state='normal')
+        entr_mass.configure(state='normal')
+    entrs_dsbld = not entrs_dsbld
 def refr_coor(x,y):
     global scale
     entr_y.configure(state='normal')
     entr_x.configure(state='normal')
     entr_y.delete(0, 'end')
     entr_x.delete(0, 'end')
-    entr_y.insert(0, round(y / scale, 2))
+    entr_y.insert(0, round((height-y) / scale, 2))
     entr_x.insert(0, round(x / scale, 2))
     entr_y.configure(state='disabled')
     entr_x.configure(state='disabled')
@@ -20,8 +35,8 @@ def refr_vel(vx,vy):
     entr_vx.configure(state='normal')
     entr_vy.delete(0, 'end')
     entr_vx.delete(0, 'end')
-    entr_vy.insert(0, round(vy / scale, 2))
-    entr_vx.insert(0, round(vx / scale, 2))
+    entr_vy.insert(0, vy)
+    entr_vx.insert(0, vx)
     entr_vy.configure(state='disabled')
     entr_vx.configure(state='disabled')
 def button_click(event):
@@ -29,18 +44,18 @@ def button_click(event):
         b_start.invoke()
     elif event.keysym == 'Escape':
         restart.invoke()
-    print(window.focus_get())
 
 
 def temp_text(event):
-    global prev_text
+    global prev_text,widget
+    widget=event.widget
     prev_text = event.widget.get()
     event.widget.delete(0, "end")
 
 
-def is_text(event):
+def foc_out(event):
     global circle,x1,y1,r,canv,circle,x2,y2,scale
-    if event.widget.get()=='':
+    if event.widget.get() == '':
         event.widget.delete(0, "end")
         event.widget.insert(0, prev_text)
     else:
@@ -50,40 +65,41 @@ def is_text(event):
             event.widget.delete(0, "end")
             event.widget.insert(0, prev_text)
         else:
-            if event.widget == entr_height: circl()
-    x1n=x1
-    y1n=y1
-    if x1+r>width:
-        x1n=width-r-1
-    if x1-r<0:
-        x1n=r+1
-    if y1+r>height:
-        y1n=height-r-1
-    if y1-r<0:
-        y1n=r+1
-    x2+=x1n-x1
-    y2 += y1n - y1
-    x1=x1n
-    y1=y1n
-    canv.delete("all")  # clears canvas
-    circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
-    if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
-    try:
-        l = float(entr_height.get())
-    except:
-        l = 100
-    scale = height / l
-    refr_coor(x1,y1)
-    time.sleep(0.1)
+            if event.widget == entr_height: on_change()
+    if x1 !=None:
+        x1n=x1
+        y1n=y1
+        if x1+r>width:
+            x1n=width-r-1
+        if x1-r<0:
+            x1n=r+1
+        if y1+r>height:
+            y1n=height-r-1
+        if y1-r<0:
+            y1n=r+1
+        x2+=x1n-x1
+        y2 += y1n - y1
+        x1=x1n
+        y1=y1n
+        canv.delete("all")  # clears canvas
+        circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+        if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
+        try:
+            l = float(entr_height.get())
+        except:
+            l = 100
+        scale = height / l
+        refr_coor(x1,y1)
+        time.sleep(0.1)
 
 def creation():
     global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, label7, label_adt, r_art, h_art, entr_radius, r_real,entr_vx,entr_vy, r, x_count, k, fx, stp, height, entr_y, entr_x, width, canv, fr, label1, label2, label3, label5, entr_wind, entr_ang, entr_mass, restart, b_start, l, scale, entr_height, label4
 
     r_art = tk.StringVar(value='0.5')
-    r_art.trace('w', circl)
+    r_art.trace('w', on_change)
 
     h_art = tk.StringVar(value='10')
-    h_art.trace('w', circl)
+    h_art.trace('w', on_change)
 
     height = window.winfo_height()
     width = window.winfo_width()
@@ -168,26 +184,24 @@ def creation():
     entr_x.bind("<FocusIn>", temp_text)
     entr_radius.bind("<FocusIn>", temp_text)
 
-    entr_ang.bind("<FocusOut>", is_text)
-    entr_mass.bind("<FocusOut>", is_text)
-    entr_wind.bind("<FocusOut>", is_text)
-    entr_height.bind("<FocusOut>", is_text)
-    entr_y.bind("<FocusOut>", is_text)
-    entr_x.bind("<FocusOut>", is_text)
-    entr_radius.bind("<FocusOut>", is_text)
+    entr_ang.bind("<FocusOut>", foc_out)
+    entr_mass.bind("<FocusOut>", foc_out)
+    entr_wind.bind("<FocusOut>", foc_out)
+    entr_height.bind("<FocusOut>", foc_out)
+    entr_y.bind("<FocusOut>", foc_out)
+    entr_x.bind("<FocusOut>", foc_out)
+    entr_radius.bind("<FocusOut>", foc_out)
 
     window.bind('<Return>', is_focused)
     window.bind('<Escape>', is_focused)
 
-    restart = tk.Button(fr, command=stop, text='Reset', height=2, width=8)
+    restart = tk.Button(fr,command=stop,text='Reset', height=2, width=8)
     restart.grid(column=3, row=1, padx=2, pady=2)
 
     b_start = tk.Button(fr, command=start, text='Start', height=2, width=8)
     b_start.grid(column=3, row=3, padx=2, pady=2)
 
     height = round(height * 13 / 16)
-
-    # print(width,height)
 
 
 def left(event):  # creates a ball
@@ -196,11 +210,13 @@ def left(event):  # creates a ball
         try:
             r_real = float(entr_radius.get())
         except:
-            r_real = 0.5
+            if widget == entr_radius:
+                r_real = float(prev_text)
         try:
             l = float(entr_height.get())
         except:
-            l = 100
+            if widget == entr_height:
+                l = float(prev_text)
         scale = height / l
         r = ceil(r_real * scale)
         if r < 2: r = 4
@@ -214,19 +230,26 @@ def left(event):  # creates a ball
             l = 100
         scale = height / l
         refr_coor(x1, y1)
-    # print(event.x,event.y)
 
 
 def move(event):  # draws a line
-    global line, length,x2,y2,x1,y1
+    global line, length,x2,y2,x1,y1,vx0,vy0
     if stp:
         try:
             canv.delete(line)
         except:
-            x2 = x1
-            y2 = x2
-        length = sqrt((x1 - event.x) ** 2 + (y1 - event.y) ** 2)
-        line = canv.create_line(x1, y1, event.x, event.y, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
+            pass
+        x2=event.x
+        y2=event.y
+        length = sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
+        length = sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+        v = 2 * length / (0.1 * scale)
+        vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+        vy = vy0 = v * (y2 - y1) / (length * 2)
+        if length <= 3: vx = vy = vx0 = vy0 = 0
+        refr_vel(round(vx,3), round(-vy,3))
 
 
 def left_up(event):  # draws final line
@@ -245,28 +268,15 @@ def left_up(event):  # draws final line
             y2=x2
         line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
 
-
-def stop():  # reset function
-    global stp, x1, x2, y1, y2, canvas, line, circle,scale
-    stp = True
-    canv.delete('all')
-    circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
-    if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
-    refr_coor(x1, y1)
-    v = 2 * length / (0.1 * scale)
-    try:
-        vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
-    except:
-        vx0 = 0
-    try:
-        vy = vy0 = v * (y2 - y1) / (length * 2)
-    except:
-        vy0 = 0
-    refr_vel(abs(vx), vy)
-
+def stop():
+    global stp
+    if not stp:
+        stp=True
+        entrs()
 def start():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, y_count1, x_count, k, fx, stp, height, width, scale, entr_height, tf, l,x1,y1,x2,y2
-    if x1 is not None and stp:
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, y_count1, x_count,x_count1, k, fx, stp, height, width, scale, entr_height, tf_y, l,x1,y1,x2,y2,tf_x
+    if x1 != None and stp:
+        entrs()
         x1n = x1
         y1n = y1
         if x1 + r > width:
@@ -283,33 +293,33 @@ def start():
         y1 = y1n
         canv.delete("all")  # clears canvas
         circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
-
-        try:
-            l = float(entr_height.get())
-        except:
-            l = 100
         refr_coor(x1, y1)
         time.sleep(0.1)
+
         try:
             wind_magn = float(entr_wind.get())
         except:
-            wind_magn = 0
+            wind_magn = float(prev_text)
         try:
             wind_ang = float(entr_ang.get())
         except:
-            wind_ang = 0
+            wind_ang = float(prev_text)
         try:
             m = float(entr_mass.get())
         except:
-            m = 1
+            m = float(prev_text)
+        try:
+            r_real = float(entr_radius.get())
+        except:
+            r_real = float(prev_text)
         try:
             l = float(entr_height.get())
         except:
-            l = 100
+            l = float(prev_text)
         scale = height / l
         stp = False
-        tf = True
-        y_count = 0
+        tf_y =tf_x =True
+        y_count=y_count1=x_count=x_count1 = 0
         y_count1 = 0
         k = 0.47 * 1.275 * 3.14 * (r_real ** 2)  # air resistance coefficient
         f = 9.8 * m  # mg
@@ -340,99 +350,174 @@ def start():
         x += vx * scale * tick / 1000  # calculates coordinates of the ball
         y += vy * scale * tick / 1000
 
-        refr_vel(abs(vx), vy)
+        refr_vel(round(vx,3), round(-vy,3))
 
         refr_coor(x, y)
 
         canv.delete('all')
-        circle = canv.create_oval(x + 5, y + 5, x - 5, y - 5, fill='#000000')#draws new circle
-        window.after(tick, my_mainloop)
+        circle = canv.create_oval(x + r, y + r, x - r, y - r, fill='#000000')  # draws new circle
+        if not stp:window.after(tick, my_mainloop)
+        else:
+            canv.delete('all')
+            circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+            if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(
+                sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
+            refr_coor(x1, y1)
+            v = 2 * length / (0.1 * scale)
+            try:
+                vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+            except:
+                vx0 = 0
+            try:
+                vy = vy0 = v * (y2 - y1) / (length * 2)
+            except:
+                vy0 = 0
+            refr_vel(round(vx, 4), round(-vy, 4))
 
 
 def my_mainloop():
-    global line,circle,x,y,x0,y0,f,t,vx,vy,vx0,vy0,m,windx,windy,y_count,x_count,tf,k,fx,stp,height,width,y_count1,tf
-    if tf:#modulates wall touch
-        if y<=5 or y>=height-5:
-            if y<=5:y=5
-            else:y=height-5
-            vy0=-vy*(1-loss)
-    if x <= 5 or x >= width-5:
-        if x<=5: x=5
-        else: x=width-5
-        vx0=-vx*(1-loss)
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, tf_y, k, fx, stp, height, width, y_count1, tf_y,tf_x,x_count1
+    if tf_y:  # modulates the wall touch
+        if y <= r or y >= height - r:
+            if y <= r:
+                y = r
+            else:
+                y = height - r
+            vy0 = -vy * (1 - loss)
+    if tf_x:
+        if x <= r or x >= width - r:
+            if x <= r:
+                x = r
+            else:
+                x = width - r
+            vx0 = -vx * (1 - loss)
 
-    vx = (vx0 - windx) / (e ** (k * t / m)) + windx  # calculates x and y velocity after tick
-    vx0 = vx
-
-    vy = (k * vy0-k*windy - f) / (k * e ** (k * t / m)) + f / k + windy
-    vy0 = vy
-
-    if y_count!= 4 and y_count1!= 4 :
-        y +=vy*scale*tick/(1000)#y
-        if y<=5.1: y_count+=1
-        elif y >= height-5.1:
+    if y_count != 4 and y_count1 != 4:
+        vy = (k * vy0 - k * windy - f) / (k * e ** (k * t / m)) + f / k + windy
+        vy0 = vy
+        y += vy * scale * tick / (1000)  # y
+        if y <= r + 0.1:
+            y_count += 1
+        elif y >= height - r - 0.1:
             y_count1 += 1
             y_count = 0
         else:
             y_count1 = 0
             y_count = 0
-    elif tf:#if the ball remains near the wall for 4 ticks, y coordinate stops changing
-        tf=False
-        if y_count==4: y=5
-        else:y=height-5
-    #y += vy * scale * tick / (1000)  # y
-    x +=vx*scale*tick/1000#x
-    #print(vx,vy)
+    elif tf_y:  # if the ball remains near the wall for 4 ticks, y coordinate stops changing
+        tf_y = False
+        vy=0
+        if y_count == 4:
+            y = r
+        else:
+            y = height - r
+            
+    if x_count != 4 and x_count1 != 4:
+        vx = (vx0 - windx) / (e ** (k * t / m)) + windx
+        vx0 = vx
+        x += vx * scale * tick / (1000)  # x
+        if x <= r + 0.1:
+            x_count += 1
+        elif x >= width - r - 0.1:
+            x_count1 += 1
+            x_count = 0
+        else:
+            x_count1 = 0
+            x_count = 0
+    elif tf_x:  # if the ball remains near the wall for 4 ticks, x coordinate stops changing
+        tf_x = False
+        vx=0
+        if x_count == 4:
+            x = r
+        else:
+            x = width - r
+            
     canv.delete('all')
-    circle = canv.create_oval(x + 5, y+5, x - 5, y-5, fill='#000000')
+    circle = canv.create_oval(x + r, y + r, x - r, y - r, fill='#000000')
+
+    refr_vel(round(vx,3), round(-vy,3))
 
     refr_coor(x, y)
 
     if not stp:
         window.after(tick, my_mainloop)  # stops the program
     else:
-        stop()
-def circl(*args):
-        global circle, r, r_real, l
+        canv.delete('all')
+        circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+        if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(
+        sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
+        refr_coor(x1, y1)
+        v = 2 * length / (0.1 * scale)
         try:
-            try:
-                r_real = float(entr_radius.get())
-            except:
-                r_real = 0.5
-            try:
-                l = float(entr_height.get())
-            except:
-                l = 100
-            scale = height / l
-            r = ceil(r_real * scale)
-            if r < 2: r = 4
-            if stp: circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+            vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
         except:
-            pass
-        else:
-            if stp:
-                canv.delete('all')
-                circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+            vx0 = 0
+        try:
+            vy = vy0 = v * (y2 - y1) / (length * 2)
+        except:
+            vy0 = 0
+        refr_vel(round(vx, 4), round(-vy, 4))
+
+
+def on_change(*args):
+    global circle, r, r_real, l,line,scale
+    try:
+        try:
+            r_real = float(entr_radius.get())
+        except:
+            if widget == entr_radius:
+                r_real = float(prev_text)
+        try:
+            l = float(entr_height.get())
+        except:
+            if widget == entr_height:
+                l = float(prev_text)
+
+        scale = height / l
+        r = ceil(r_real * scale)
+        if r < 2: r = 4
+        if stp and x1!=None: circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+    except:pass
+    else:
+        if stp:
+            canv.delete('all')
+            circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
+    if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
+    refr_coor(x1, y1)
+    v = 2 * length / (0.1 * scale)
+    try:
+        vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+    except:
+        vx0 = 0
+    try:
+        vy = vy0 = v * (y2 - y1) / (length * 2)
+    except:
+        vy0 = 0
+    refr_vel(round(vx,3), round(-vy,3))
+
+
 def is_focused(event):
-        if window.focus_get()._w == '.':
-            button_click(event)
-        else:
-            window.focus_set()
+    if window.focus_get()._w == '.':
+        button_click(event)
+    else:
+        window.focus_set()
 
-stp=True
-x1=None
-y1=None
-x2=None
-y2=None
 
-l=10
-loss=0.4#loss of speed when hitting a wall
-e=exp(1)#exponenta
-tick=30#update time
-x_count=2
-y_count=0
-y_count1=0
-tf=True
+stp = True
+entrs_dsbld=False
+x1 = None
+y1 = None
+x2 = None
+y2 = None
+
+l = 10
+loss = 0.3  # loss of speed when hitting a wall
+e = exp(1)  # exponenta
+tick = 30  # update time
+x_count = 2
+y_count = 0
+y_count1 = 0
+tf_y = True
 
 window = tk.Tk()  # Window creation
 height = window.winfo_screenheight()  # height and width of user's screen
