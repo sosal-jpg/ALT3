@@ -224,11 +224,6 @@ def left(event):  # creates a ball
         y1 = event.y
         canv.delete("all")  # clears canvas
         circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
-        try:
-            l = float(entr_height.get())
-        except:
-            l = 100
-        scale = height / l
         refr_coor(x1, y1)
 
 
@@ -246,10 +241,11 @@ def move(event):  # draws a line
         length = sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
         v = 2 * length / (0.1 * scale)
-        vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
-        vy = vy0 = v * (y2 - y1) / (length * 2)
+        vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
+        vy = vy0 = v * (y2 - y1) / (length * 4)
         if length <= 3: vx = vy = vx0 = vy0 = 0
-        refr_vel(round(vx,3), round(-vy,3))
+        if abs(vx)<0.001:refr_vel(0, round(-vy,3))
+        else:refr_vel(round(vx,3), round(-vy,3))
 
 
 def left_up(event):  # draws final line
@@ -331,11 +327,11 @@ def start():
         if abs(windy) < 0.01: windy = 0
         v = 2 * length / (0.1 * scale)
         try:
-            vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+            vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
         except:
             vx0 = 0
         try:
-            vy = vy0 = v * (y2 - y1) / (length * 2)
+            vy = vy0 = v * (y2 - y1) / (length * 4)
         except:
             vy0 = 0
         if length <= 3: vx = vy = vx0 = vy0 = 0
@@ -350,7 +346,8 @@ def start():
         x += vx * scale * tick / 1000  # calculates coordinates of the ball
         y += vy * scale * tick / 1000
 
-        refr_vel(round(vx,3), round(-vy,3))
+        if abs(vx)<0.001:refr_vel(0, round(-vy,3))
+        else:refr_vel(round(vx,3), round(-vy,3))
 
         refr_coor(x, y)
 
@@ -360,16 +357,15 @@ def start():
         else:
             canv.delete('all')
             circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
-            if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(
-                sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
+            if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
             refr_coor(x1, y1)
             v = 2 * length / (0.1 * scale)
             try:
-                vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+                vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
             except:
                 vx0 = 0
             try:
-                vy = vy0 = v * (y2 - y1) / (length * 2)
+                vy = vy0 = v * (y2 - y1) / (length * 4)
             except:
                 vy0 = 0
             refr_vel(round(vx, 4), round(-vy, 4))
@@ -411,7 +407,7 @@ def my_mainloop():
             y = r
         else:
             y = height - r
-            
+
     if x_count != 4 and x_count1 != 4:
         vx = (vx0 - windx) / (e ** (k * t / m)) + windx
         vx0 = vx
@@ -431,11 +427,12 @@ def my_mainloop():
             x = r
         else:
             x = width - r
-            
+
     canv.delete('all')
     circle = canv.create_oval(x + r, y + r, x - r, y - r, fill='#000000')
 
-    refr_vel(round(vx,3), round(-vy,3))
+    if abs(vx)<0.001:refr_vel(0, round(-vy,3))
+    else:refr_vel(round(vx,3), round(-vy,3))
 
     refr_coor(x, y)
 
@@ -449,11 +446,11 @@ def my_mainloop():
         refr_coor(x1, y1)
         v = 2 * length / (0.1 * scale)
         try:
-            vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+            vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
         except:
             vx0 = 0
         try:
-            vy = vy0 = v * (y2 - y1) / (length * 2)
+            vy = vy0 = v * (y2 - y1) / (length * 4)
         except:
             vy0 = 0
         refr_vel(round(vx, 4), round(-vy, 4))
@@ -486,14 +483,15 @@ def on_change(*args):
     refr_coor(x1, y1)
     v = 2 * length / (0.1 * scale)
     try:
-        vx = vx0 = v * (x2 - x1) / (length * 2)  # calculates x and y velocity
+        vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
     except:
         vx0 = 0
     try:
-        vy = vy0 = v * (y2 - y1) / (length * 2)
+        vy = vy0 = v * (y2 - y1) / (length * 4)
     except:
         vy0 = 0
-    refr_vel(round(vx,3), round(-vy,3))
+    if abs(vx)<0.001:refr_vel(0, round(-vy,3))
+    else:refr_vel(round(vx,3), round(-vy,3))
 
 
 def is_focused(event):
