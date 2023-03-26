@@ -281,13 +281,13 @@ def left_up(event):  # draws final line
         line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
 
 def stop():
-    global stp,is_stoping
+    global stp,is_stopping
     if not stp:
         stp=True
-        is_stoping=True
+        is_stopping=True
         entrs()
 def start():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, y_count1, x_count,x_count1, k, fx, stp, height, width, scale, entr_height, tf_y, l,x1,y1,x2,y2,tf_x,is_stoping
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, y_count1, x_count,x_count1, k, fx, stp, height, width, scale, entr_height, tf_y, l,x1,y1,x2,y2,tf_x,is_stopping
     if x1 != None and stp:
         entrs()
         x1n = x1
@@ -390,7 +390,7 @@ def start():
 
 
 def my_mainloop():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, tf_y, k, fx, stp, height, width, y_count1, tf_y,tf_x,x_count1,is_stoping
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, tf_y, k, fx, stp, height, width, y_count1, tf_y,tf_x,x_count1,is_stopping
     if tf_y:  # modulates the wall touch
         if y <= r or y >= height - r:
             if y <= r:
@@ -473,7 +473,7 @@ def my_mainloop():
             vy0 = 0
         if length <= 5: vx = vy = vx0 = vy0 = 0
         refr_vel(round(vx, 4), round(-vy, 4))
-        is_stoping=False
+        is_stopping=False
 
 
 def on_change_dimensions(*args):
@@ -527,7 +527,7 @@ def on_change_dimensions(*args):
 
 def on_change_v(*args):
     global vx0,vy0,line,y2,x2,length
-    if (not is_moving) and (stp) and (not is_stoping):
+    if (not is_moving) and (stp) and (not is_stopping):
         try:
             vx0 = float(entr_vx.get())
         except:
@@ -574,7 +574,7 @@ y_count = 0
 y_count1 = 0
 tf_y = True
 is_moving=False
-is_stoping=False
+is_stopping=False
 
 window = tk.Tk()  # Window creation
 height = window.winfo_screenheight()  # height and width of user's screen
