@@ -65,7 +65,7 @@ def foc_out(event):
             event.widget.delete(0, "end")
             event.widget.insert(0, prev_text)
         else:
-            if event.widget == entr_height: on_change()
+            if event.widget == entr_height: on_change_dimensions()
     if x1 !=None:
         x1n=x1
         y1n=y1
@@ -96,10 +96,10 @@ def creation():
     global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, label7, label_adt, r_art, h_art, entr_radius, r_real,entr_vx,entr_vy, r, x_count, k, fx, stp, height, entr_y, entr_x, width, canv, fr, label1, label2, label3, label5, entr_wind, entr_ang, entr_mass, restart, b_start, l, scale, entr_height, label4
 
     r_art = tk.StringVar(value='0.5')
-    r_art.trace('w', on_change)
+    r_art.trace('w', on_change_dimensions)
 
     h_art = tk.StringVar(value='10')
-    h_art.trace('w', on_change)
+    h_art.trace('w', on_change_dimensions)
 
     height = window.winfo_height()
     width = window.winfo_width()
@@ -222,6 +222,8 @@ def left(event):  # creates a ball
         if r < 2: r = 4
         x1 = event.x
         y1 = event.y
+        entr_vx.delete(0,'end')
+        entr_vy.delete(0, 'end')
         canv.delete("all")  # clears canvas
         circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
         refr_coor(x1, y1)
@@ -240,10 +242,10 @@ def move(event):  # draws a line
         line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
         length = sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
-        v = 2 * length / (0.1 * scale)
+        v = 15 * length / (scale)
         vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
         vy = vy0 = v * (y2 - y1) / (length * 4)
-        if length <= 3: vx = vy = vx0 = vy0 = 0
+        if length <= 5: vx = vy = vx0 = vy0 = 0
         if abs(vx)<0.001:refr_vel(0, round(-vy,3))
         else:refr_vel(round(vx,3), round(-vy,3))
 
@@ -317,7 +319,7 @@ def start():
         tf_y =tf_x =True
         y_count=y_count1=x_count=x_count1 = 0
         y_count1 = 0
-        k = 0.47 * 1.275 * 3.14 * (r_real ** 2)  # air resistance coefficient
+        k = 0.47 * 1.275 * 3.14 * (r_real ** 2)/2  # air resistance coefficient
         f = 9.8 * m  # mg
         x = x0 = x1
         y = y0 = y1
@@ -325,7 +327,7 @@ def start():
         windy = sin(radians(wind_ang + 180)) * wind_magn
         if abs(windx) < 0.01: windx = 0
         if abs(windy) < 0.01: windy = 0
-        v = 2 * length / (0.1 * scale)
+        v = 15 * length / (scale)
         try:
             vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
         except:
@@ -334,7 +336,7 @@ def start():
             vy = vy0 = v * (y2 - y1) / (length * 4)
         except:
             vy0 = 0
-        if length <= 3: vx = vy = vx0 = vy0 = 0
+        if length <= 5: vx = vy = vx0 = vy0 = 0
         t = tick / (1000)  # tick in seconds
 
         vx = (vx0 - windx) / (e ** (k * t / m)) + windx  # calculates x and y velocity after tick
@@ -359,7 +361,7 @@ def start():
             circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
             if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
             refr_coor(x1, y1)
-            v = 2 * length / (0.1 * scale)
+            v = 15 * length / (scale)
             try:
                 vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
             except:
@@ -444,7 +446,7 @@ def my_mainloop():
         if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(
         sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
         refr_coor(x1, y1)
-        v = 2 * length / (0.1 * scale)
+        v = 15 * length / (scale)
         try:
             vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
         except:
@@ -453,11 +455,12 @@ def my_mainloop():
             vy = vy0 = v * (y2 - y1) / (length * 4)
         except:
             vy0 = 0
+        if length <= 5: vx = vy = vx0 = vy0 = 0
         refr_vel(round(vx, 4), round(-vy, 4))
 
 
-def on_change(*args):
-    global circle, r, r_real, l,line,scale
+def on_change_dimensions(*args):
+    global circle, r, r_real, l,line,scale,entr_wind,scale
     try:
         try:
             r_real = float(entr_radius.get())
@@ -469,9 +472,21 @@ def on_change(*args):
         except:
             if widget == entr_height:
                 l = float(prev_text)
-
+        if l>10000:
+            l=10000
+            entr_height.delete(0, "end")
+            entr_height.insert(0,'100000')
+        elif l<0.1:
+            entr_height.delete(0, "end")
+            entr_height.insert(0,'0.1')
+            l=0.1
         scale = height / l
         r = ceil(r_real * scale)
+        if r>=height/2:
+            r=height/2-1
+            r_real=round(r/scale,4)
+            entr_radius.delete(0, "end")
+            entr_radius.insert(0,f'{r_real}')
         if r < 2: r = 4
         if stp and x1!=None: circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
     except:pass
@@ -481,15 +496,15 @@ def on_change(*args):
             circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
     if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
     refr_coor(x1, y1)
-    v = 2 * length / (0.1 * scale)
+    v = 15 * length / (scale)
     try:
         vx = vx0 = v * (x2 - x1) / (length * 4)  # calculates x and y velocity
     except:
-        vx0 = 0
+        vx0 =vx= 0
     try:
         vy = vy0 = v * (y2 - y1) / (length * 4)
     except:
-        vy0 = 0
+        vy0 =vy= 0
     if abs(vx)<0.001:refr_vel(0, round(-vy,3))
     else:refr_vel(round(vx,3), round(-vy,3))
 
