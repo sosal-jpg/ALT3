@@ -11,7 +11,11 @@ def entrs():
         entr_radius.configure(state='disabled')
         entr_height.configure(state='disabled')
         entr_mass.configure(state='disabled')
+        entr_vy.configure(state='disabled')
+        entr_vx.configure(state='disabled')
     else:
+        entr_vy.configure(state='normal')
+        entr_vx.configure(state='normal')
         entr_wind.configure(state='normal')
         entr_ang.configure(state='normal')
         entr_radius.configure(state='normal')
@@ -37,8 +41,9 @@ def refr_vel(vx,vy):
     entr_vx.delete(0, 'end')
     entr_vy.insert(0, vy)
     entr_vx.insert(0, vx)
-    entr_vy.configure(state='disabled')
-    entr_vx.configure(state='disabled')
+    if not stp:
+        entr_vy.configure(state='disabled')
+        entr_vx.configure(state='disabled')
 def button_click(event):
     if event.keysym == 'Return':
         b_start.invoke()
@@ -93,13 +98,19 @@ def foc_out(event):
         time.sleep(0.1)
 
 def creation():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, label7, label_adt, r_art, h_art, entr_radius, r_real,entr_vx,entr_vy, r, x_count, k, fx, stp, height, entr_y, entr_x, width, canv, fr, label1, label2, label3, label5, entr_wind, entr_ang, entr_mass, restart, b_start, l, scale, entr_height, label4
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, label7, label_adt, r_art, h_art, entr_radius, r_real,entr_vx,entr_vy, r, x_count, k, fx, stp, height, entr_y, entr_x, width, canv, fr, label1, label2, label3, label5, entr_wind, entr_ang, entr_mass, restart, b_start, l, scale, entr_height, label4,c_vx,c_vy
 
     r_art = tk.StringVar(value='0.5')
     r_art.trace('w', on_change_dimensions)
 
     h_art = tk.StringVar(value='10')
     h_art.trace('w', on_change_dimensions)
+
+    c_vx = tk.StringVar(value='0')
+    c_vx.trace('w', on_change_v)
+
+    c_vy = tk.StringVar(value='0')
+    c_vy.trace('w', on_change_v)
 
     height = window.winfo_height()
     width = window.winfo_width()
@@ -165,11 +176,11 @@ def creation():
     entr_x.insert(0, '0')
     entr_x.grid(column=5, row=1, padx=2, pady=2)
 
-    entr_vy = tk.Entry(fr,state='disabled')
+    entr_vy = tk.Entry(fr,textvariable=c_vx,state='disabled')
     entr_vy.insert(0, '0')
     entr_vy.grid(column=4, row=3, padx=2, pady=2)
 
-    entr_vx = tk.Entry(fr,state='disabled')
+    entr_vx = tk.Entry(fr,textvariable=c_vy,state='disabled')
     entr_vx.insert(0, '0')
     entr_vx.grid(column=5, row=3, padx=2, pady=2)
 
@@ -227,11 +238,13 @@ def left(event):  # creates a ball
         canv.delete("all")  # clears canvas
         circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
         refr_coor(x1, y1)
-
+        entr_vx.configure(state='normal')
+        entr_vy.configure(state='normal')
 
 def move(event):  # draws a line
-    global line, length,x2,y2,x1,y1,vx0,vy0
+    global line, length,x2,y2,x1,y1,vx0,vy0,is_moving
     if stp:
+        is_moving=True
         try:
             canv.delete(line)
         except:
@@ -248,6 +261,7 @@ def move(event):  # draws a line
         if length <= 5: vx = vy = vx0 = vy0 = 0
         if abs(vx)<0.001:refr_vel(0, round(-vy,3))
         else:refr_vel(round(vx,3), round(-vy,3))
+        is_moving = False
 
 
 def left_up(event):  # draws final line
@@ -267,12 +281,13 @@ def left_up(event):  # draws final line
         line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + length * 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)),fill='#e31212')
 
 def stop():
-    global stp
+    global stp,is_stoping
     if not stp:
         stp=True
+        is_stoping=True
         entrs()
 def start():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, y_count1, x_count,x_count1, k, fx, stp, height, width, scale, entr_height, tf_y, l,x1,y1,x2,y2,tf_x
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, y_count1, x_count,x_count1, k, fx, stp, height, width, scale, entr_height, tf_y, l,x1,y1,x2,y2,tf_x,is_stoping
     if x1 != None and stp:
         entrs()
         x1n = x1
@@ -373,8 +388,9 @@ def start():
             refr_vel(round(vx, 4), round(-vy, 4))
 
 
+
 def my_mainloop():
-    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, tf_y, k, fx, stp, height, width, y_count1, tf_y,tf_x,x_count1
+    global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, tf_y, k, fx, stp, height, width, y_count1, tf_y,tf_x,x_count1,is_stoping
     if tf_y:  # modulates the wall touch
         if y <= r or y >= height - r:
             if y <= r:
@@ -457,6 +473,7 @@ def my_mainloop():
             vy0 = 0
         if length <= 5: vx = vy = vx0 = vy0 = 0
         refr_vel(round(vx, 4), round(-vy, 4))
+        is_stoping=False
 
 
 def on_change_dimensions(*args):
@@ -508,6 +525,31 @@ def on_change_dimensions(*args):
     if abs(vx)<0.001:refr_vel(0, round(-vy,3))
     else:refr_vel(round(vx,3), round(-vy,3))
 
+def on_change_v(*args):
+    global vx0,vy0,line,y2,x2,length
+    if (not is_moving) and (stp) and (not is_stoping):
+        try:
+            vx0 = float(entr_vx.get())
+        except:
+            vx0 = 0
+        try:
+            vy0 = float(entr_vy.get())
+        except:
+            vy0 = 0
+        if vx0>100000:
+            vx0=100000
+            entr_vx.delete(0, "end")
+            entr_vx.insert(0, '100000')
+        if vy0 > 100000:
+            vy0 = 100000
+            entr_vy.delete(0, "end")
+            entr_vy.insert(0, '100000')
+        x2=x1+4*scale*vx0/15
+        y2 = y1 - 4 * scale * vy0 / 15
+        length=sqrt((x1-x2)**2+(y1-y2)**2)
+        canv.delete(line)
+        if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
+
 
 def is_focused(event):
     if window.focus_get()._w == '.':
@@ -531,6 +573,8 @@ x_count = 2
 y_count = 0
 y_count1 = 0
 tf_y = True
+is_moving=False
+is_stoping=False
 
 window = tk.Tk()  # Window creation
 height = window.winfo_screenheight()  # height and width of user's screen
