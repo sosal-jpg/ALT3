@@ -216,7 +216,7 @@ def creation():
 
 
 def left(event):  # creates a ball
-    global x1, y1, circle, r, r_real,entr_x,entr_y,scale
+    global x1, y1, circle, r, r_real,entr_x,entr_y,scale,line
     if stp:
         try:
             r_real = float(entr_radius.get())
@@ -370,7 +370,7 @@ def start():
 
         canv.delete('all')
         circle = canv.create_oval(x + r, y + r, x - r, y - r, fill='#000000')  # draws new circle
-        if not stp:window.after(tick, my_mainloop)
+        if not stp:window.after(tick, mainloop)
         else:
             canv.delete('all')
             circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
@@ -386,10 +386,11 @@ def start():
             except:
                 vy0 = 0
             refr_vel(round(vx, 4), round(-vy, 4))
+            is_stopping = False
 
 
 
-def my_mainloop():
+def mainloop():
     global line, circle, x, y, x0, y0, f, t, vx, vy, vx0, vy0, m, windx, windy, y_count, x_count, tf_y, k, fx, stp, height, width, y_count1, tf_y,tf_x,x_count1,is_stopping
     if tf_y:  # modulates the wall touch
         if y <= r or y >= height - r:
@@ -455,7 +456,7 @@ def my_mainloop():
     refr_coor(x, y)
 
     if not stp:
-        window.after(tick, my_mainloop)  # stops the program
+        window.after(tick, mainloop)  # stops the program
     else:
         canv.delete('all')
         circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
@@ -500,7 +501,7 @@ def on_change_dimensions(*args):
         scale = height / l
         r = ceil(r_real * scale)
         if r>=height/2:
-            r=height/2-1
+            r=round(height/2-1)
             r_real=round(r/scale,4)
             entr_radius.delete(0, "end")
             entr_radius.insert(0,f'{r_real}')
@@ -526,7 +527,7 @@ def on_change_dimensions(*args):
     else:refr_vel(round(vx,3), round(-vy,3))
 
 def on_change_v(*args):
-    global vx0,vy0,line,y2,x2,length
+    global vx0,vy0,line,y2,x2,length,circle
     if (not is_moving) and (stp) and (not is_stopping):
         try:
             vx0 = float(entr_vx.get())
@@ -547,8 +548,10 @@ def on_change_v(*args):
         x2=x1+4*scale*vx0/15
         y2 = y1 - 4 * scale * vy0 / 15
         length=sqrt((x1-x2)**2+(y1-y2)**2)
-        canv.delete(line)
+        canv.delete('all')
+        circle = canv.create_oval(x1 + r, y1 + r, x1 - r, y1 - r, fill='#000000')
         if length != 0: line = canv.create_line(x1, y1, x2, y2, width=3, arrow=tk.LAST, arrowshape=(sqrt(10 + 10 / 25), sqrt(10 + length * 20 / 25), sqrt(10 + length * 7 / 25)), fill='#e31212')
+
 
 
 def is_focused(event):
